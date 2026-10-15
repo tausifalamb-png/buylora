@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6d28d9">
+<title>Buylora | Shop & Share</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f7f7fb;color:#201c2b}
+header{background:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px #0000000c;position:sticky;top:0}
+.logo{font-size:25px;font-weight:800;color:#6d28d9}
+button,input{font:inherit;border-radius:10px;padding:12px}
+button{border:0;background:#6d28d9;color:white;font-weight:700;cursor:pointer}
+main{max-width:900px;margin:auto;padding:16px}
+.search{width:100%;border:1px solid #ddd;background:#fff}
+h2{font-size:21px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.tabs button{background:#eee;color:#333}
+.tabs button.active{background:#6d28d9;color:white}
+.notice{font-size:13px;color:#696273;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.product{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px #00000010}
+.product img{width:100%;height:165px;object-fit:contain;background:#fff}
+.info{padding:12px}
+.name{font-weight:700;font-size:14px;line-height:1.4;min-height:38px}
+.price{font-size:19px;font-weight:800;margin:10px 0}
+.old{font-size:13px;color:#888;text-decoration:line-through;font-weight:400}
+.share{width:100%;margin-top:5px}
+.panel{background:#fff;padding:16px;border-radius:14px;margin:18px 0}
+.panel input{width:100%;border:1px solid #ddd;margin:8px 0}
+.panel button{width:100%}
+[hidden]{display:none!important}
+footer{text-align:center;padding:24px;color:#777;font-size:12px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.product img{height:210px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Buylora</div>
+  <button id="profile">Sign in</button>
+</header><main>
+  <h2>Discover products</h2>
+  <input class="search" id="search" placeholder="Search products..." aria-label="Search products">  <div class="tabs">
+    <button class="active" id="directTab">Direct Products</button>
+    <button id="pasteTab">Paste Link</button>
+  </div>  <section id="directSection">
+    <p class="notice">Explore catalogue products. Share products with friends using the share button.</p>
+    <div class="grid" id="products"></div>
+  </section>  <section class="panel" id="pasteSection" hidden>
+    <h2>Paste & Share a Product</h2>
+    <p class="notice">Submit a supported merchant URL for review. A pasted URL is not automatically an affiliate link.</p>
+    <input id="productUrl" type="url" placeholder="Paste product URL here">
+    <button id="submitUrl">Submit for review</button>
+    <p class="notice" id="pasteStatus" role="status"></p>
+  </section>  <section class="panel" id="detail" hidden>
+    <button id="back" style="background:#eee;color:#333">← Back</button>
+    <img id="detailImage" alt="Product image" style="width:100%;max-height:280px;object-fit:contain">
+    <h2 id="detailName"></h2>
+    <p id="detailPrice" class="price"></p>
+    <p class="notice">Seller price and availability may change. Verify details on the merchant website.</p>
+    <button id="detailShare" style="width:100%">Share product</button>
+    <button id="buyNow" style="width:100%;margin-top:8px">Buy Now</button>
+    <p id="detailStatus" class="notice" role="status"></p>
+  </section>  <section class="panel">
+    <h2>🏆 Competitions</h2>
+    <p>Direct Products leaderboard</p>
+    <p>Paste Link leaderboard</p>
+    <p class="notice">Verified commission rankings will be enabled after the backend and merchant reporting are connected.</p>
+  </section>
+</main><footer>Buylora · Shop smart. Share products.</footer><script>
+const catalogue=[
+ {id:"p1",name:"Wireless Earbuds",price:499,old:799,image:"https://placehold.co/500x400/f2efff/6d28d9?text=Wireless+Earbuds"},
+ {id:"p2",name:"25W Fast Charger",price:260,old:270,image:"https://placehold.co/500x400/f2efff/6d28d9?text=Fast+Charger"},
+ {id:"p3",name:"Smart Watch",price:699,old:999,image:"https://placehold.co/500x400/f2efff/6d28d9?text=Smart+Watch"},
+ {id:"p4",name:"Bluetooth Speaker",price:399,old:599,image:"https://placehold.co/500x400/f2efff/6d28d9?text=Speaker"}
+];
+
+const $=id=>document.getElementById(id);
+let selected=null;
+
+function render(){
+ const q=$("search").value.toLowerCase();
+ $("products").replaceChildren();
+ catalogue.filter(p=>p.name.toLowerCase().includes(q)).forEach(p=>{
+  const card=document.createElement("article");
+  card.className="product";
+  const img=document.createElement("img");
+  img.src=p.image;img.alt=p.name;img.loading="lazy";
+  const info=document.createElement("div");info.className="info";
+  const name=document.createElement("div");name.className="name";name.textContent=p.name;
+  const price=document.createElement("div");price.className="price";price.textContent="₹"+p.price+" ";
+  const old=document.createElement("span");old.className="old";old.textContent="₹"+p.old;
+  price.append(old);
+  const view=document.createElement("button");view.className="share";view.textContent="View product";
+  view.onclick=()=>openProduct(p);
+  const share=document.createElement("button");share.className="share";share.textContent="Share product";
+  share.onclick=()=>shareProduct(p);
+  info.append(name,price,view,share);card.append(img,info);$("products").append(card);
+ });
+}
+
+function openProduct(p){
+ selected=p;
+ $("directSection").hidden=true;
+ $("pasteSection").hidden=true;
+ $("detail").hidden=false;
+ $("detailImage").src=p.image;
+ $("detailName").textContent=p.name;
+ $("detailPrice").textContent="₹"+p.price;
+ $("detailStatus").textContent="Demo catalogue item. Merchant purchase link is not configured.";
+ $("buyNow").disabled=true;
+}
+
+async function shareProduct(p){
+ const url=new URL(location.href);
+ url.searchParams.set("product",p.id);
+ try{
+  if(navigator.share) await navigator.share({title:p.name,url:url.href});
+  else{await navigator.clipboard.writeText(url.href);alert("Product page link copied");}
+ }catch(e){if(e.name!=="AbortError")alert("Unable to share. Copy this page URL instead.");}
+}
+
+$("directTab").onclick=()=>{
+ $("directSection").hidden=false;$("pasteSection").hidden=true;$("detail").hidden=true;
+ $("directTab").classList.add("active");$("pasteTab").classList.remove("active");
+};
+$("pasteTab").onclick=()=>{
+ $("directSection").hidden=true;$("detail").hidden=true;$("pasteSection").hidden=false;
+ $("pasteTab").classList.add("active");$("directTab").classList.remove("active");
+};
+$("back").onclick=()=>$("directTab").click();
+$("search").addEventListener("input",render);
+$("detailShare").onclick=()=>{if(selected)shareProduct(selected);};
+
+$("submitUrl").onclick=()=>{
+ const raw=$("productUrl").value.trim();
+ try{
+  const u=new URL(raw);
+  if(u.protocol!=="https:")throw Error();
+  $("pasteStatus").textContent="Demo only: link format looks valid. Merchant allowlist, server validation and admin review are required before publishing.";
+ }catch{
+  $("pasteStatus").textContent="Please enter a valid HTTPS product URL.";
+ }
+};
+
+$("profile").onclick=()=>alert("Sign-in will be enabled after Firebase Authentication setup.");
+
+const params=new URLSearchParams(location.search);
+const productId=params.get("product");
+render();
+if(productId){
+ const p=catalogue.find(x=>x.id===productId);
+ if(p)openProduct(p);
+}
+</script></body>
+</html>
