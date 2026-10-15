@@ -1,156 +1,183 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#6d28d9">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Buylora | Shop & Share</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f7f7fb;color:#201c2b}
-header{background:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px #0000000c;position:sticky;top:0}
-.logo{font-size:25px;font-weight:800;color:#6d28d9}
-button,input{font:inherit;border-radius:10px;padding:12px}
-button{border:0;background:#6d28d9;color:white;font-weight:700;cursor:pointer}
-main{max-width:900px;margin:auto;padding:16px}
-.search{width:100%;border:1px solid #ddd;background:#fff}
+body{margin:0;background:#f5f7fb;color:#202938;font-family:Arial,sans-serif}
+header{background:#fff;padding:16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ddd}
+.logo{font-size:25px;font-weight:800;color:#28734d}
+main{max-width:950px;margin:auto;padding:16px}
 h2{font-size:21px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
-.tabs button{background:#eee;color:#333}
-.tabs button.active{background:#6d28d9;color:white}
-.notice{font-size:13px;color:#696273;line-height:1.6}
+input,button{font:inherit;padding:12px;border-radius:10px}
+input{width:100%;border:1px solid #ccd3dc;margin:7px 0}
+button{border:0;background:#28734d;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#e7eee9;color:#205b3c}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
+.tabs button{background:#e4e9e7;color:#234}
+.tabs button.active{background:#28734d;color:white}
+.notice{font-size:13px;color:#687386;line-height:1.6}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.product{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px #00000010}
-.product img{width:100%;height:165px;object-fit:contain;background:#fff}
-.info{padding:12px}
-.name{font-weight:700;font-size:14px;line-height:1.4;min-height:38px}
-.price{font-size:19px;font-weight:800;margin:10px 0}
-.old{font-size:13px;color:#888;text-decoration:line-through;font-weight:400}
-.share{width:100%;margin-top:5px}
-.panel{background:#fff;padding:16px;border-radius:14px;margin:18px 0}
-.panel input{width:100%;border:1px solid #ddd;margin:8px 0}
-.panel button{width:100%}
+.card,.panel{background:white;border-radius:14px;padding:14px;border:1px solid #e2e6eb;margin-bottom:12px}
+.product img{width:100%;height:140px;object-fit:contain;background:#f4f6f8;border-radius:9px}
+.name{font-weight:bold;margin:10px 0}
+.price{font-size:19px;font-weight:bold}
+.old{color:#888;text-decoration:line-through;font-size:13px}
+.share{width:100%;margin-top:9px}
 [hidden]{display:none!important}
-footer{text-align:center;padding:24px;color:#777;font-size:12px}
-@media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.product img{height:210px}}
+footer{text-align:center;padding:25px;color:#777;font-size:13px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.product img{height:190px}}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">Buylora</div>
-  <button id="profile">Sign in</button>
-</header><main>
-  <h2>Discover products</h2>
-  <input class="search" id="search" placeholder="Search products..." aria-label="Search products">  <div class="tabs">
-    <button class="active" id="directTab">Direct Products</button>
-    <button id="pasteTab">Paste Link</button>
-  </div>  <section id="directSection">
-    <p class="notice">Explore catalogue products. Share products with friends using the share button.</p>
-    <div class="grid" id="products"></div>
-  </section>  <section class="panel" id="pasteSection" hidden>
-    <h2>Paste & Share a Product</h2>
-    <p class="notice">Submit a supported merchant URL for review. A pasted URL is not automatically an affiliate link.</p>
-    <input id="productUrl" type="url" placeholder="Paste product URL here">
-    <button id="submitUrl">Submit for review</button>
-    <p class="notice" id="pasteStatus" role="status"></p>
-  </section>  <section class="panel" id="detail" hidden>
-    <button id="back" style="background:#eee;color:#333">← Back</button>
-    <img id="detailImage" alt="Product image" style="width:100%;max-height:280px;object-fit:contain">
-    <h2 id="detailName"></h2>
-    <p id="detailPrice" class="price"></p>
-    <p class="notice">Seller price and availability may change. Verify details on the merchant website.</p>
-    <button id="detailShare" style="width:100%">Share product</button>
-    <button id="buyNow" style="width:100%;margin-top:8px">Buy Now</button>
-    <p id="detailStatus" class="notice" role="status"></p>
-  </section>  <section class="panel">
-    <h2>🏆 Competitions</h2>
-    <p>Direct Products leaderboard</p>
-    <p>Paste Link leaderboard</p>
-    <p class="notice">Verified commission rankings will be enabled after the backend and merchant reporting are connected.</p>
-  </section>
-</main><footer>Buylora · Shop smart. Share products.</footer><script>
-const catalogue=[
- {id:"p1",name:"Wireless Earbuds",price:499,old:799,image:"https://placehold.co/500x400/f2efff/6d28d9?text=Wireless+Earbuds"},
- {id:"p2",name:"25W Fast Charger",price:260,old:270,image:"https://placehold.co/500x400/f2efff/6d28d9?text=Fast+Charger"},
- {id:"p3",name:"Smart Watch",price:699,old:999,image:"https://placehold.co/500x400/f2efff/6d28d9?text=Smart+Watch"},
- {id:"p4",name:"Bluetooth Speaker",price:399,old:599,image:"https://placehold.co/500x400/f2efff/6d28d9?text=Speaker"}
-];
+<div class="logo">Buylora</div>
+<button class="secondary" id="profile">Sign in</button>
+</header>
+<main>
+<section id="home">
+<h2>Discover products</h2>
+<input id="search" placeholder="Search products...">
+<div class="tabs">
+<button class="active" id="directTab">Direct Products</button>
+<button id="pasteTab">Paste Link</button>
+</div>
 
+<section id="directSection">
+<p class="notice">Approved catalogue demo. Share a product with friends.</p>
+<div class="grid" id="products"></div>
+</section>
+
+<section id="pasteSection" hidden>
+<div class="panel">
+<h2>Paste & Share a Product</h2>
+<p class="notice">Paste a public product URL for review. A pasted URL is not automatically an affiliate link.</p>
+<input id="productUrl" type="url" placeholder="https://www.meesho.com/..." maxlength="2048">
+<button id="submitUrl" style="width:100%">Submit for review</button>
+<p id="pasteStatus" class="notice" role="status"></p>
+</div>
+</section>
+</section>
+
+<section class="panel" id="detail" hidden>
+<button id="back" class="secondary">← Back</button>
+<img id="detailImage" alt="Product image" style="width:100%;max-height:280px;object-fit:contain">
+<h2 id="detailName"></h2>
+<p id="detailPrice" class="price"></p>
+<p class="notice">Seller price and availability may change. Verify details on the merchant website.</p>
+<button id="detailShare" class="share">Share product</button>
+<button id="buyNow" class="share" style="margin-top:8px">Buy Now ↗</button>
+<p id="detailStatus" class="notice" role="status"></p>
+</section>
+
+<section class="panel">
+<h2>🏆 Competitions</h2>
+<p>Direct Products leaderboard</p>
+<div id="directBoard" class="notice">No verified rankings yet.</div>
+<hr>
+<p>Paste Link leaderboard</p>
+<div id="pasteBoard" class="notice">No verified rankings yet.</div>
+<p class="notice">Rankings only. Rewards are based on verified affiliate commission, not clicks or shares. Verified commission requires backend and merchant reporting integration.</p>
+</section>
+<footer>Buylora · Shop smart. Share products.</footer>
+</main>
+<script>
+const catalogue=[
+{id:"p1",name:"Wireless Earbuds",price:499,old:799,image:"https://placehold.co/500x400/f2efff/333?text=Wireless+Earbuds",merchant:"Amazon",url:"https://www.amazon.in/"},
+{id:"p2",name:"25W Fast Charger",price:260,old:370,image:"https://placehold.co/500x400/eef8ff/333?text=Fast+Charger",merchant:"Flipkart",url:"https://www.flipkart.com/"},
+{id:"p3",name:"Smart Watch",price:699,old:999,image:"https://placehold.co/500x400/fef2e8/333?text=Smart+Watch",merchant:"Meesho",url:"https://www.meesho.com/"},
+{id:"p4",name:"Bluetooth Speaker",price:399,old:599,image:"https://placehold.co/500x400/eaf8ed/333?text=Speaker",merchant:"Meesho",url:"https://www.meesho.com/"}
+];
 const $=id=>document.getElementById(id);
 let selected=null;
-
-function render(){
+function getRef(){
+ let r=new URLSearchParams(location.search).get("ref");
+ return r&&/^[a-zA-Z0-9_-]{1,40}$/.test(r)?r:null;
+}
+function safeText(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function renderProducts(){
  const q=$("search").value.toLowerCase();
- $("products").replaceChildren();
- catalogue.filter(p=>p.name.toLowerCase().includes(q)).forEach(p=>{
-  const card=document.createElement("article");
-  card.className="product";
-  const img=document.createElement("img");
-  img.src=p.image;img.alt=p.name;img.loading="lazy";
-  const info=document.createElement("div");info.className="info";
-  const name=document.createElement("div");name.className="name";name.textContent=p.name;
-  const price=document.createElement("div");price.className="price";price.textContent="₹"+p.price+" ";
-  const old=document.createElement("span");old.className="old";old.textContent="₹"+p.old;
-  price.append(old);
-  const view=document.createElement("button");view.className="share";view.textContent="View product";
-  view.onclick=()=>openProduct(p);
-  const share=document.createElement("button");share.className="share";share.textContent="Share product";
-  share.onclick=()=>shareProduct(p);
-  info.append(name,price,view,share);card.append(img,info);$("products").append(card);
- });
+ $("products").innerHTML=catalogue.filter(p=>p.name.toLowerCase().includes(q)).map(p=>`
+ <article class="card product">
+ <img src="${p.image}" alt="${safeText(p.name)}">
+ <div class="name">${safeText(p.name)}</div>
+ <div class="price">₹${p.price}</div>
+ <div class="old">₹${p.old}</div>
+ <p class="notice">Demo catalogue · ${p.merchant}</p>
+ <button class="share" data-open="${p.id}">View & Share</button>
+ </article>`).join("");
 }
-
-function openProduct(p){
- selected=p;
- $("directSection").hidden=true;
- $("pasteSection").hidden=true;
- $("detail").hidden=false;
- $("detailImage").src=p.image;
- $("detailName").textContent=p.name;
- $("detailPrice").textContent="₹"+p.price;
- $("detailStatus").textContent="Demo catalogue item. Merchant purchase link is not configured.";
- $("buyNow").disabled=true;
+function openProduct(id){
+ selected=catalogue.find(p=>p.id===id);
+ if(!selected)return;
+ $("home").hidden=true;$("detail").hidden=false;
+ $("detailName").textContent=selected.name;
+ $("detailPrice").textContent="₹"+selected.price;
+ $("detailImage").src=selected.image;
+ $("detailStatus").textContent="";
+ history.replaceState(null,"",location.pathname+"?product="+encodeURIComponent(id)+(getRef()?"&ref="+encodeURIComponent(getRef()):""));
+ window.scrollTo(0,0);
 }
-
-async function shareProduct(p){
- const url=new URL(location.href);
- url.searchParams.set("product",p.id);
- try{
-  if(navigator.share) await navigator.share({title:p.name,url:url.href});
-  else{await navigator.clipboard.writeText(url.href);alert("Product page link copied");}
- }catch(e){if(e.name!=="AbortError")alert("Unable to share. Copy this page URL instead.");}
+function shareProduct(){
+ if(!selected)return;
+ const ref=getRef()||("u"+Math.random().toString(36).slice(2,10));
+ const link=location.origin+location.pathname+"?product="+encodeURIComponent(selected.id)+"&ref="+encodeURIComponent(ref);
+ if(navigator.share){
+ navigator.share({title:"Buylora - "+selected.name,text:"Check out this product on Buylora",url:link}).catch(()=>{});
+ }else if(navigator.clipboard){
+ navigator.clipboard.writeText(link).then(()=>$("detailStatus").textContent="Product link copied!").catch(()=>$("detailStatus").textContent=link);
+ }else{$("detailStatus").textContent=link;}
 }
-
+$("products").addEventListener("click",e=>{
+ const b=e.target.closest("[data-open]");
+ if(b)openProduct(b.dataset.open);
+});
+$("search").addEventListener("input",renderProducts);
 $("directTab").onclick=()=>{
- $("directSection").hidden=false;$("pasteSection").hidden=true;$("detail").hidden=true;
  $("directTab").classList.add("active");$("pasteTab").classList.remove("active");
+ $("directSection").hidden=false;$("pasteSection").hidden=true;
 };
 $("pasteTab").onclick=()=>{
- $("directSection").hidden=true;$("detail").hidden=true;$("pasteSection").hidden=false;
  $("pasteTab").classList.add("active");$("directTab").classList.remove("active");
+ $("directSection").hidden=true;$("pasteSection").hidden=false;
 };
-$("back").onclick=()=>$("directTab").click();
-$("search").addEventListener("input",render);
-$("detailShare").onclick=()=>{if(selected)shareProduct(selected);};
-
+$("back").onclick=()=>{
+ $("detail").hidden=true;$("home").hidden=false;
+ history.replaceState(null,"",location.pathname);
+ window.scrollTo(0,0);
+};
+$("detailShare").onclick=shareProduct;
+$("buyNow").onclick=()=>{
+ if(!selected)return;
+ // Demo only: use the merchant's homepage, not a fabricated affiliate URL.
+ window.open(selected.url,"_blank","noopener,noreferrer");
+};
 $("submitUrl").onclick=()=>{
  const raw=$("productUrl").value.trim();
- try{
-  const u=new URL(raw);
-  if(u.protocol!=="https:")throw Error();
-  $("pasteStatus").textContent="Demo only: link format looks valid. Merchant allowlist, server validation and admin review are required before publishing.";
- }catch{
-  $("pasteStatus").textContent="Please enter a valid HTTPS product URL.";
+ let u;
+ try{u=new URL(raw)}catch{
+ $("pasteStatus").textContent="Valid product URL paste karo.";return;
  }
+ if(u.protocol!=="https:"&&u.protocol!=="http:"){
+ $("pasteStatus").textContent="Sirf HTTP/HTTPS links allowed hain.";return;
+ }
+ const host=u.hostname.toLowerCase();
+ const allowed=["meesho.com","www.meesho.com","amazon.in","www.amazon.in","flipkart.com","www.flipkart.com"];
+ if(!allowed.includes(host)){
+ $("pasteStatus").textContent="Abhi sirf supported merchant domains submit kar sakte ho.";return;
+ }
+ $("pasteStatus").textContent="Demo: URL validated in browser. Real submission requires a secure backend and admin review. No affiliate attribution or reward has been created.";
 };
-
-$("profile").onclick=()=>alert("Sign-in will be enabled after Firebase Authentication setup.");
-
-const params=new URLSearchParams(location.search);
-const productId=params.get("product");
-render();
-if(productId){
- const p=catalogue.find(x=>x.id===productId);
- if(p)openProduct(p);
+$("profile").onclick=()=>alert("Demo mode: sign-in needs a secure authentication backend.");
+function showLeaderboard(id){
+ $(id).textContent="Rankings will appear after verified commission data is connected.";
 }
-</script></body>
+showLeaderboard("directBoard");showLeaderboard("pasteBoard");
+renderProducts();
+const initial=new URLSearchParams(location.search).get("product");
+if(initial)openProduct(initial);
+</script>
+</body>
 </html>
